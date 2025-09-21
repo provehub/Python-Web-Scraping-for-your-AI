@@ -86,3 +86,42 @@ uvicorn lesson2_search_api:app --reload
 
 
 
+
+lesson_2_like_chatgpt_answer
+
+pip install  "SQLAlchemy>=2.0" "psycopg[binary]" pgvector
+
+# for  mac  users
+# ensure PG15 is installed or any version you use
+brew install postgresql@15
+
+# build pgvector against PG15 (uses PG15's pg_config)
+brew install git make
+git clone https://github.com/pgvector/pgvector.git
+cd pgvector
+make PG_CONFIG="$(brew --prefix postgresql@15)/bin/pg_config"
+make PG_CONFIG="$(brew --prefix postgresql@15)/bin/pg_config" install
+
+# for linux users
+export PGAPP="/Applications/Postgres.app/Contents/Versions/15"
+git clone https://github.com/pgvector/pgvector.git
+cd pgvector
+make PG_CONFIG="$PGAPP/bin/pg_config"
+make PG_CONFIG="$PGAPP/bin/pg_config" install
+
+# for  windows users
+Windows (EDB): open StackBuilder → add the pgvector extension for your server → restart service.
+
+# everyone should do the below
+ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS embedding vector(384);
+
+CREATE INDEX IF NOT EXISTS quotes_embedding_ivfflat
+  ON public.quotes USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+
+ANALYZE public.quotes;
+
+#paste in terminal
+python lesson3_pgvector_backfill.py
+
+uvicorn lesson2_like_chatgpt_answer:app --reload
+
