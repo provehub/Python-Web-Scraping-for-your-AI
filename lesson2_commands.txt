@@ -125,3 +125,83 @@ python lesson3_pgvector_backfill.py
 
 uvicorn lesson2_like_chatgpt_answer:app --reload
 
+
+#Vue Side
+# insert the below code to the top of lesson2_like_chatgpt_answer.py
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Create a 'frontend' folder in your project folder
+cd frontend
+
+( if you don't have node js installed on your pc, install here: https://nodejs.org/en )
+
+npm create vite@latest rag-ui -- --template vue
+cd rag-ui
+npm install
+
+# Create a .env in the root (mine is rag-ui) so the UI knows where your API runs: then paste the below code inside it
+VITE_API_BASE=http://127.0.0.1:8000
+
+# Open vite.config.js and paste this (This is to avoid CORS via Vite proxy) - you can read what CORS means on google or chatgpt
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api/, ''),
+      },
+    },
+  },
+})
+
+
+# I use TailwindCSS ( https://tailwindcss.com/ )
+# from your Vite app root
+npm i -D tailwindcss@3 postcss autoprefixer
+npx tailwindcss init -p
+
+# if npx tailwindcss init -p does not work for you, do the below
+# create tailwind.config.js in the root (mine is rag-ui)
+export default {
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  theme: { extend: {} },
+  plugins: [require('@tailwindcss/typography')],
+}
+
+
+# create postcss.config.js same as above and paste below
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+# install the below
+npm i -D @tailwindcss/typography
+
+# goto src/style.css and paste the below
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+# go to src/App.vue and paste my code from github
+
+# then run
+npm run dev
+
+
+

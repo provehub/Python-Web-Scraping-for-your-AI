@@ -14,6 +14,20 @@ from pgvector.psycopg import register_vector, Vector as PgVector
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="Quotes RAG (pgvector + local generator)")
+
+# CORS for Vite dev server (Vue at :5173)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # only in dev!
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=False,  # "*" cannot be used with credentials=True
+)
+
+
 # ------------------ Config ------------------
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
